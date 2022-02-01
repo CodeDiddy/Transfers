@@ -82,26 +82,56 @@ def haal_transfers(jaar):
       haal_transfers(jaar)
 
 # Standen van deze jaren ophalen
-# def haal_standen(jaar):
-#    try:
-#       driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
-#       # driver = webdriver.Firefox()
+def haal_standen(jaar):
+   standen = []
+   try:
+      # driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+      driver = webdriver.Firefox()
+      
 
-#       # Ga naar webpagina
-#       driver.get(f"https://www.transfermarkt.nl/eredivisie/tabelle/wettbewerb/NL1/saison_id/{jaar}")
+      # Ga naar webpagina
+      driver.get(f"https://www.transfermarkt.nl/eredivisie/tabelle/wettbewerb/NL1/saison_id/{jaar}")
+      driver.implicitly_wait(20)
+      driver.switch_to.frame(driver.find_element(By.ID, 'sp_message_iframe_575848'))
+      driver.implicitly_wait(20)
+      driver.find_element(By.CSS_SELECTOR, '.sp_choice_type_11').click()
+      time.sleep(3)
+      driver.switch_to.default_content()
+      time.sleep(3)
 
-#       # Switch naar Iframe met privacy-voorwaarden, accept en terug naar main content
-#       driver.implicitly_wait(20)
-#       driver.switch_to.frame(driver.find_element(By.ID, 'sp_message_iframe_575848'))
-#       driver.implicitly_wait(20)
-#       driver.find_element(By.CSS_SELECTOR, '.sp_choice_type_11').click()
-#       time.sleep(3)
-#       driver.switch_to.default_content()
-#       time.sleep(3)
+      stand = pd.read_html(driver.page_source)
+      for index, rows in stand[3].iterrows():
+         temp_list = [jaar]
+         temp_list.append(rows['#'])
+         temp_list.append(rows['Club.1'])
+         temp_list.append(rows['Wedstr.'])
+         temp_list.append(rows['W'])
+         temp_list.append(rows['G'])
+         temp_list.append(rows['V'])
+         temp_list.append(rows['Doelpunten'])
+         temp_list.append(rows['+/-'])
+         temp_list.append(rows['Pnt.'])
 
-
+         standen.append(temp_list)
+         temp_list = []
+      driver.close()
+   except:
+      print('Er is iets mis gegaan')
+      driver.close()
+      haal_standen(jaar)
+   
+   with open('standen.csv', 'a') as f:
+      writer = csv.writer(f)
+      for stand in standen:
+         writer.writerow(stand)
 
 for jaar in range(2000, 2021):
-   haal_transfers(jaar)
-   print(f"Transfers toegevoegd voor seizoen {jaar}/{jaar + 1}") 
+#    haal_transfers(jaar)
+#    print(f"Transfers toegevoegd voor seizoen {jaar}/{jaar + 1}") 
+   haal_standen(jaar)
+   print(f"Standen toegevoegd voor seizoen {jaar}/{jaar + 1}") 
+
+
+
+
   
