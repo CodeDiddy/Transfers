@@ -10,7 +10,6 @@ import csv
 import os
 # import lxml
 
-
 os.environ['WDM_LOG_LEVEL'] = '0'
 # driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
 
@@ -63,7 +62,6 @@ def haal_transfers(jaar):
                   
                   temp_list.append(rows['Leeftijd'])
                   temp_list.append(rows['Pos'])
-                  # temp_list.append(rows['Afkoopsom'])
                   temp_list.append(transfersom(rows['Afkoopsom']))
 
                   player_list.append(temp_list)
@@ -81,7 +79,7 @@ def haal_transfers(jaar):
       driver.close()
       haal_transfers(jaar)
 
-# Standen van deze jaren ophalen
+# Eindstand op de ranglijst per jaar ophalen
 def haal_standen(jaar):
    standen = []
    try:
@@ -92,6 +90,8 @@ def haal_standen(jaar):
       # Ga naar webpagina
       driver.get(f"https://www.transfermarkt.nl/eredivisie/tabelle/wettbewerb/NL1/saison_id/{jaar}")
       driver.implicitly_wait(20)
+      
+      # Switch naar Iframe met privacy-voorwaarden, accept en terug naar main content
       driver.switch_to.frame(driver.find_element(By.ID, 'sp_message_iframe_575848'))
       driver.implicitly_wait(20)
       driver.find_element(By.CSS_SELECTOR, '.sp_choice_type_11').click()
